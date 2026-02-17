@@ -1,0 +1,18 @@
+[
+  {
+    "id": "CH001",
+    "name": "Ethanol",
+    "quantity": 50,
+    "unit": "ل",
+    "responsible": "Ahmed_Admin",
+    "category": "chemicals"
+  },
+  {
+    "id": "CH002",
+    "name": "Methanol",
+    "quantity": 20,
+    "unit": "ل",
+    "responsible": "Ahmed_Admin",
+    "category": "chemicals"
+  }
+]
