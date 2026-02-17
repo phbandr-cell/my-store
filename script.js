@@ -124,3 +124,24 @@ function processDisbursement(status) {
     alert(`تمت الموافقة!\nالمستلم: ${requester}\nالكمية المتبقية في المستودع: ${newBalance}`);
     window.location.href = "dashboard.html";
 }
+function submitRequest() {
+    const itemName = document.getElementById('targetItem').innerText;
+    const requester = document.getElementById('requesterName').value;
+    const qty = document.getElementById('requestQty').value;
+    const available = parseInt(document.getElementById('availableQty').innerText);
+
+    if (!requester || !qty || qty <= 0) {
+        alert("يرجى ملء جميع الحقول وإدخال كمية صحيحة.");
+        return;
+    }
+
+    if (parseInt(qty) > available) {
+        alert("تنبيه: الكمية المطلوبة غير متوفرة حالياً، ولكن سيتم إرسال طلبك للمراجعة.");
+    }
+
+    // محاكاة إرسال الطلب
+    alert(`شكراً لك يا ${requester}.\nتم إرسال طلب صرف (${qty}) من (${itemName}) بنجاح.\nيرجى مراجعة المسؤول لاعتماد الطلب.`);
+    
+    // العودة لصفحة البحث
+    window.location.href = "index.html";
+}
