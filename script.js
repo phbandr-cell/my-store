@@ -29,7 +29,7 @@ function logout() {
 }
 
 // ==========================================
-// 2. محرك البحث الذكي (إصلاح مشكلة عدم ظهور النتائج)
+// 2. محرك البحث (إصلاح مشكلة عدم ظهور النتائج)
 // ==========================================
 async function quickSearch() {
     const query = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -39,44 +39,42 @@ async function quickSearch() {
 
     if (query.length > 0) {
         try {
-            // جلب البيانات من ملفاتك الحقيقية المرفوعة
+            // جلب البيانات من ملفاتك الحقيقية في المستودع
             const files = ['chemicals.json', 'consumables.json', 'devices.json'];
             let allItems = [];
 
             for (const file of files) {
                 try {
-                    // إضافة تاش لإجبار المتصفح على جلب أحدث نسخة من GitHub
+                    // إضافة timestamp لمنع تخزين الكاش في المتصفح
                     const response = await fetch(`${file}?t=${new Date().getTime()}`);
                     if (response.ok) {
                         const data = await response.json();
-                        // التعامل مع البيانات سواء كانت مصفوفة أو كائن فردي
+                        // تحويل البيانات إلى مصفوفة إذا لم تكن كذلك
                         if (Array.isArray(data)) {
                             allItems = allItems.concat(data);
                         } else if (data && typeof data === 'object') {
                             allItems.push(data);
                         }
                     }
-                } catch (e) {
-                    console.error(`خطأ في قراءة ملف ${file}:`, e);
-                }
+                } catch (e) { console.error(`خطأ في ${file}:`, e); }
             }
 
-            // تصفية النتائج: نبحث في الاسم (عربي أو إنجليزي)
+            // تصفية النتائج بناءً على الاسم (عربي/إنجليزي)
             const filtered = allItems.filter(item => 
                 item.name && item.name.toString().toLowerCase().includes(query)
             );
 
             if (filtered.length === 0) {
-                resultsDiv.innerHTML = `<div style="padding:15px; color:#c0392b;">لا توجد نتائج لـ "${query}" في المستودع حالياً.</div>`;
+                resultsDiv.innerHTML = `<div style="padding:10px; color:#c0392b;">لا توجد نتائج مطابقة لـ "${query}"</div>`;
                 return;
             }
 
-            // بناء البطاقات للنتائج
+            // عرض النتائج
             filtered.forEach(item => {
                 resultsDiv.innerHTML += `
                     <div class="item-card" style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; background:#fff; margin-top:5px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
                         <div>
-                            <strong style="color:#2c3e50; font-size:16px;">${item.name}</strong><br>
+                            <strong style="color:#2c3e50;">${item.name}</strong><br>
                             <span style="color:#27ae60; font-size:14px;">المتوفر: ${item.quantity} ${item.unit}</span>
                         </div>
                         <button onclick="location.href='disbursement.html?item=${encodeURIComponent(item.name)}&stock=${item.quantity}'" 
@@ -86,31 +84,14 @@ async function quickSearch() {
                     </div>`;
             });
         } catch (error) {
-            console.error("خطأ عام في البحث:", error);
-            resultsDiv.innerHTML = "<p style='color:red; padding:10px;'>حدث خطأ فني أثناء جلب البيانات.</p>";
+            console.error("خطأ عام:", error);
+            resultsDiv.innerHTML = "<p style='color:red; padding:10px;'>حدث خطأ فني أثناء البحث.</p>";
         }
     }
 }
 
 // ==========================================
-// 3. معالجة طلبات الصرف
-// ==========================================
-function submitRequest() {
-    const itemName = document.getElementById('targetItem')?.innerText;
-    const requester = document.getElementById('requesterName')?.value;
-    const qty = document.getElementById('requestQty')?.value;
-
-    if (!requester || !qty || qty <= 0) {
-        alert("يرجى إكمال جميع البيانات المطلوبة.");
-        return;
-    }
-
-    alert(`شكراً لك يا ${requester}.\nتم إرسال طلب صرف (${qty}) من (${itemName}) بنجاح.\nبانتظار موافقة الإدارة.`);
-    window.location.href = "index.html";
-}
-
-// ==========================================
-// 4. إدارة الأصناف (add-item.html)
+// 3. وظائف الإضافة وحساب الإجمالي
 // ==========================================
 function updateUnits() {
     const category = document.getElementById('category').value;
