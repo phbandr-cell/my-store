@@ -2,38 +2,21 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة المخزن الطبي</title>
+    <title>دخول النظام</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        .login-container h2 { color: #2c3e50; margin-bottom: 25px; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 12px; background-color: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.3s; }
-        button:hover { background-color: #2980b9; }
-        .footer-text { margin-top: 20px; font-size: 0.9em; color: #7f8c8d; }
-    </style>
 </head>
-<body>
-
+<body class="login-page">
     <div class="login-container">
         <h2>🔐 تسجيل الدخول</h2>
-        
         <input type="text" id="username" placeholder="اسم المستخدم">
-        
         <input type="password" id="password" placeholder="كلمة المرور">
-        
         <select id="userRole">
-            <option value="user">موظف (طلب صرف)</option>
+            <option value="user">موظف (صلاحيات محدودة)</option>
             <option value="admin">أدمن (إدارة كاملة)</option>
         </select>
-        
         <button onclick="login()">دخول للنظام</button>
-        
-        <p class="footer-text">نظام إدارة المستودع المختبري v1.0</p>
+        <p id="errorMsg" style="color:red;"></p>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
