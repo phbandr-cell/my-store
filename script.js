@@ -1,5 +1,5 @@
 // ==========================================
-// 1. نظام الدخول والصلاحيات
+// 1. نظام الدخول والتحقق من الصلاحيات
 // ==========================================
 function login() {
     const user = document.getElementById('username').value;
@@ -26,6 +26,7 @@ function checkAccess() {
     const welcomeMsg = document.getElementById('welcomeMsg');
     if (welcomeMsg) welcomeMsg.innerText = "مرحباً، " + user;
 
+    // إظهار زر الإدارة فقط للأدمن
     const adminLink = document.getElementById('adminLink');
     if (adminLink) {
         adminLink.style.display = (role === 'admin') ? 'block' : 'none';
@@ -69,61 +70,47 @@ function calculateTotal() {
 }
 
 // ==========================================
-// 3. نظام البحث السريع (index.html)
+// 3. نظام البحث المباشر من ملفات JSON
 // ==========================================
-const mockItems = [
-    { name: "Ethanol", dept: "chemicals", stock: 50 },
-    { name: "أنابيب اختبار", dept: "consumables", stock: 100 },
-    { name: "Centrifuge", dept: "devices", stock: 5 }
-];
-
-function quickSearch() {
+async function quickSearch() {
     const query = document.getElementById('searchInput').value.toLowerCase();
     const resultsDiv = document.getElementById('searchResults');
     if (!resultsDiv) return;
     resultsDiv.innerHTML = "";
 
     if (query.length > 0) {
-        const filtered = mockItems.filter(item => item.name.toLowerCase().includes(query));
-        filtered.forEach(item => {
-            resultsDiv.innerHTML += `
-                <div class="item-card" style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
-                    <span>${item.name}</span>
-                    <button onclick="location.href='disbursement.html?item=${item.name}&stock=${item.stock}'" style="width:auto; padding:5px; background:#e67e22;">طلب صرف</button>
-                </div>`;
-        });
+        try {
+            // جلب البيانات من ملفاتك الثلاثة المرفوعة
+            const responses = await Promise.all([
+                fetch('chemicals.json'),
+                fetch('consumables.json'),
+                fetch('devices.json')
+            ]);
+            
+            const data = await Promise.all(responses.map(res => res.json()));
+            const allItems = data.flat(); // دمج المصفوفات
+            
+            const filtered = allItems.filter(item => item.name.toLowerCase().includes(query));
+            
+            filtered.forEach(item => {
+                resultsDiv.innerHTML += `
+                    <div class="item-card" style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+                        <span><strong>${item.name}</strong> (المتوفر: ${item.quantity} ${item.unit})</span>
+                        <button onclick="location.href='disbursement.html?item=${item.name}&stock=${item.quantity}'" 
+                                style="width:auto; padding:5px 10px; background:#e67e22; border:none; color:white; border-radius:5px; cursor:pointer;">
+                            طلب صرف
+                        </button>
+                    </div>`;
+            });
+        } catch (error) {
+            console.error("خطأ في جلب البيانات:", error);
+        }
     }
 }
 
 // ==========================================
-// 4. نظام الصرف (disbursement.html) - الكود الذي سألت عنه
+// 4. نظام تقديم طلبات الصرف (disbursement.html)
 // ==========================================
-function processDisbursement(status) {
-    const requester = document.getElementById('requesterName').value;
-    const qty = document.getElementById('requestQty').value;
-    const available = parseInt(document.getElementById('availableQty').innerText);
-
-    if (status === 'rejected') {
-        alert("تم رفض الطلب وحفظه في سجل المرفوضات.");
-        window.location.href = "index.html";
-        return;
-    }
-
-    if (!requester || !qty) {
-        alert("يرجى إكمال بيانات الطالب والكمية.");
-        return;
-    }
-
-    if (parseInt(qty) > available) {
-        alert("عذراً، الكمية المطلوبة أكبر من المتوفر في الرصيد!");
-        return;
-    }
-
-    // هنا سيتم الربط مع GitHub API لاحقاً لتعديل ملفات الـ JSON حقيقياً
-    const newBalance = available - parseInt(qty);
-    alert(`تمت الموافقة!\nالمستلم: ${requester}\nالكمية المتبقية في المستودع: ${newBalance}`);
-    window.location.href = "dashboard.html";
-}
 function submitRequest() {
     const itemName = document.getElementById('targetItem').innerText;
     const requester = document.getElementById('requesterName').value;
@@ -135,13 +122,32 @@ function submitRequest() {
         return;
     }
 
+    // تنبيه في حال طلب كمية أكبر من المتاح
     if (parseInt(qty) > available) {
-        alert("تنبيه: الكمية المطلوبة غير متوفرة حالياً، ولكن سيتم إرسال طلبك للمراجعة.");
+        alert("تنبيه: الكمية المطلوبة غير متوفرة بالكامل حالياً، ولكن سيتم إرسال طلبك للمراجعة.");
     }
 
-    // محاكاة إرسال الطلب
-    alert(`شكراً لك يا ${requester}.\nتم إرسال طلب صرف (${qty}) من (${itemName}) بنجاح.\nيرجى مراجعة المسؤول لاعتماد الطلب.`);
+    // محاكاة إرسال الطلب (سيتم ربطها بملف طلبات لاحقاً)
+    alert(`شكراً لك يا ${requester}.\nتم إرسال طلب صرف لـ (${qty}) من (${itemName}) بنجاح.\nيرجى انتظار اعتماد الطلب من قبل الإدارة.`);
     
-    // العودة لصفحة البحث
     window.location.href = "index.html";
+}
+
+// ==========================================
+// 5. وظائف الإدارة (admin_requests.html)
+// ==========================================
+function approveRequest(requestId) {
+    if (confirm("هل أنت متأكد من الموافقة على صرف هذه الكمية؟")) {
+        // هنا سيتم الخصم الحقيقي من الملفات
+        alert("تم اعتماد الطلب بنجاح وتحديث المخزون.");
+        location.reload();
+    }
+}
+
+function rejectRequest(requestId) {
+    const reason = prompt("يرجى ذكر سبب الرفض:");
+    if (reason) {
+        alert("تم رفض الطلب.");
+        location.reload();
+    }
 }
