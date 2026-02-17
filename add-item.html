@@ -20,18 +20,15 @@
         </select>
         <input type="text" id="itemName" placeholder="اسم الصنف">
         <input type="number" id="itemQty" placeholder="الكمية">
-        <select id="unit">
-            </select>
+        <select id="unit"></select>
         <button onclick="addItem()" class="save-btn">💾 حفظ في المستودع</button>
-        <button onclick="location.href='dashboard.html'" style="background:#95a5a6; color:white; border:none;">🔙 رجوع</button>
+        <button onclick="location.href='dashboard.html'" style="background:#95a5a6; color:white; border:none; cursor:pointer;">🔙 رجوع</button>
     </div>
-
     <script src="script.js"></script>
     <script>
         function loadUnits() {
-            const unitSelect = document.getElementById('unit');
             const units = ["مل", "لتر", "جرام", "كجم", "علبة", "جهاز", "قطعة"];
-            unitSelect.innerHTML = units.map(u => `<option value="${u}">${u}</option>`).join('');
+            document.getElementById('unit').innerHTML = units.map(u => `<option value="${u}">${u}</option>`).join('');
         }
     </script>
 </body>
