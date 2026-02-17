@@ -1,0 +1,11 @@
+[
+  {
+    "id": "DV001",
+    "name": "Centrifuge",
+    "quantity": 2,
+    "unit": "جهاز",
+    "serials": ["SN-9920", "SN-9921"],
+    "responsible": "Admin",
+    "category": "devices"
+  }
+]
