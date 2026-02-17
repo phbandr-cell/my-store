@@ -1,0 +1,18 @@
+[
+  {
+    "id": "CO001",
+    "name": "أنابيب اختبار",
+    "quantity": 20,
+    "unit": "كرتون",
+    "responsible": "مسؤول_المستودع",
+    "category": "consumables"
+  },
+  {
+    "id": "CO002",
+    "name": "قفازات طبية",
+    "quantity": 100,
+    "unit": "علبة",
+    "responsible": "مسؤول_المستودع",
+    "category": "consumables"
+  }
+]
