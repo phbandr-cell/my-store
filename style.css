@@ -1,27 +1,8 @@
-/* تنسيق القائمة المنسدلة */
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-    border-radius: 5px;
-}
-
-.dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    border-bottom: 1px solid #eee;
-}
-
-.dropdown:hover .dropdown-content {
-    display: block;
-}
+body { font-family: sans-serif; background: #f4f7f6; direction: rtl; }
+.container { max-width: 800px; margin: 20px auto; padding: 20px; background: white; border-radius: 10px; }
+.nav-bar { display: flex; justify-content: space-between; padding: 10px; background: #2c3e50; }
+.cat-btn { width: 100%; padding: 20px; margin: 10px 0; border: none; border-radius: 5px; color: white; cursor: pointer; font-size: 18px; }
+.green { background: #27ae60; } .blue { background: #2980b9; } .purple { background: #8e44ad; }
+.exit-btn { background: #c0392b; color: white; border: none; padding: 10px; cursor: pointer; }
+.item-card { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
+input, select { width: 100%; padding: 10px; margin: 10px 0; }
