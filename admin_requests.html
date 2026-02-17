@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طلبات الصرف المعلقة - الإدارة</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .request-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .status-pending { color: #f39c12; font-weight: bold; }
+        .action-btns { display: flex; gap: 10px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>📥 طلبات الصرف بانتظار الاعتماد</h2>
+        <div id="requestsList">
+            <p style="text-align:center;">جاري تحميل الطلبات...</p>
+        </div>
+        <button onclick="location.href='dashboard.html'" style="background: #7f8c8d;">رجوع للرئيسية</button>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        window.onload = function() {
+            checkAccess(); // التأكد أن المستخدم أدمن
+            loadPendingRequests();
+        };
+
+        // وظيفة محاكاة لعرض الطلبات
+        function loadPendingRequests() {
+            const list = document.getElementById('requestsList');
+            // حالياً سنضع طلب تجريبي لمحاكاة ما سيحدث
+            const mockRequest = {
+                id: 1,
+                item: "Ethanol",
+                qty: 5,
+                requester: "خالد محمد",
+                dept: "الأحياء",
+                date: "2026-02-17"
+            };
+
+            list.innerHTML = `
+                <div class="request-card">
+                    <p><strong>الصنف:</strong> ${mockRequest.item}</p>
+                    <p><strong>الكمية المطلوبة:</strong> ${mockRequest.qty}</p>
+                    <p><strong>مقدم الطلب:</strong> ${mockRequest.requester} (${mockRequest.dept})</p>
+                    <p><strong>الحالة:</strong> <span class="status-pending">بانتظار الموافقة</span></p>
+                    <div class="action-btns">
+                        <button onclick="approveRequest(${mockRequest.id})" style="background: #27ae60;">✅ موافقة</button>
+                        <button onclick="rejectRequest(${mockRequest.id})" style="background: #c0392b;">❌ رفض</button>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
