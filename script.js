@@ -2,138 +2,83 @@ const GITHUB_TOKEN = "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";
 const REPO_OWNER = "phbandr-cell"; 
 const REPO_NAME = "my-store";
 
-// --- 1. نظام تسجيل الدخول (Login) ---
-// هذا الجزء الذي كان مفقوداً في النسخة السابقة
+// 1. نظام الدخول
 function login() {
     const user = document.getElementById('username').value;
     const pass = document.getElementById('password').value;
     const role = document.getElementById('userRole').value;
-
-    if (!user) {
-        alert("يرجى إدخال اسم المستخدم");
-        return;
-    }
-
-    if (role === "admin") {
-        if (pass === "12345") { // الباسورد المطلوب
-            localStorage.setItem('currentUser', user);
-            localStorage.setItem('userRole', 'admin');
-            window.location.href = "dashboard.html";
-        } else {
-            alert("كلمة المرور 12345 غير صحيحة للأدمن");
-        }
-    } else {
-        // دخول الموظف العادي لا يتطلب باسورد في هذا النظام
-        localStorage.setItem('currentUser', user);
-        localStorage.setItem('userRole', 'user');
-        window.location.href = "dashboard.html";
-    }
+    if (!user) return alert("أدخل اسم المستخدم");
+    if (role === "admin" && pass !== "12345") return alert("الباسورد خطأ");
+    localStorage.setItem('currentUser', user);
+    localStorage.setItem('userRole', role);
+    window.location.href = "dashboard.html";
 }
 
-// --- 2. عرض الأقسام والبحث ---
-async function showCategory(category) {
-    const results = document.getElementById('searchResults');
-    results.innerHTML = "جاري التحميل...";
-    try {
-        const res = await fetch(`${category}.json?t=${Date.now()}`);
-        const data = await res.json();
-        results.innerHTML = `<h3>📦 أصناف ${category}:</h3>` + data.map(i => `
-            <div class="item-card">
-                <span><b>${i.name}</b> (${i.quantity} ${i.unit})</span>
-                <button onclick="location.href='disbursement.html?item=${i.name}&stock=${i.quantity}'" style="background:#3498db; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;">طلب صرف</button>
-            </div>
-        `).join('');
-    } catch (e) { 
-        results.innerHTML = "القسم فارغ حالياً أو الملف غير موجود."; 
-    }
-}
-
-// --- 3. إرسال طلب الصرف ---
+// 2. إرسال الطلب مع حفظ القسم
 async function sendRequest() {
     const item = document.getElementById('itemNameDisp').innerText;
     const stock = parseInt(document.getElementById('itemStockDisp').innerText);
     const requester = document.getElementById('requester').value;
     const qty = parseInt(document.getElementById('reqQty').value);
+    const category = window.currentCategory; 
 
-    if (!requester || !qty || qty <= 0) {
-        alert("أكمل البيانات");
-        return;
-    }
-    
-    if (qty > stock) {
-        alert("الكمية المطلوبة غير متوفرة!");
-        return;
-    }
+    if (!requester || !qty || qty <= 0) return alert("بيانات ناقصة");
+    if (qty > stock) return alert("المخزون لا يكفي!");
 
-    try {
-        const res = await fetch(`requests.json?t=${Date.now()}`);
-        let requests = res.ok ? await res.json() : [];
-        requests.push({ 
-            item, 
-            requester, 
-            qty, 
-            status: "قيد الانتظار", 
-            date: new Date().toLocaleString('ar-SA') 
-        });
+    const res = await fetch(`requests.json?t=${Date.now()}`);
+    let requests = res.ok ? await res.json() : [];
+    requests.push({ item, requester, qty, category, status: "قيد الانتظار", date: new Date().toLocaleString('ar-SA') });
 
-        if (await saveToGitHub('requests.json', requests)) {
-            alert("✅ تم إرسال الطلب بنجاح!");
-            window.location.href = "dashboard.html";
-        }
-    } catch (e) { 
-        alert("خطأ في الاتصال أثناء إرسال الطلب"); 
+    if (await saveToGitHub('requests.json', requests)) {
+        alert("✅ تم الإرسال للمسؤول");
+        window.location.href = "dashboard.html";
     }
 }
 
-// --- 4. إضافة صنف جديد ---
-async function addItem() {
-    const cat = document.getElementById('category').value;
-    const name = document.getElementById('itemName').value;
-    const qty = document.getElementById('itemQty').value;
-    const unit = document.getElementById('unit').value;
+// 3. الموافقة وخصم الكمية من المخزون آلياً
+async function approveAndDeduct(itemName, qty, reqIndex, category) {
+    if (!confirm("هل تؤكد صرف الكمية وخصمها من المستودع؟")) return;
 
-    if (!name || !qty) {
-        alert("أكمل البيانات");
-        return;
+    // خصم من ملف القسم
+    const catRes = await fetch(`${category}.json?t=${Date.now()}`);
+    let inventory = await catRes.json();
+    const idx = inventory.findIndex(i => i.name === itemName);
+    if (idx !== -1) {
+        inventory[idx].quantity = parseInt(inventory[idx].quantity) - qty;
+        await saveToGitHub(`${category}.json`, inventory);
     }
 
-    try {
-        const res = await fetch(`${cat}.json?t=${Date.now()}`);
-        let data = res.ok ? await res.json() : [];
-        data.push({ name, quantity: qty, unit, id: Date.now() });
+    // تحديث حالة الطلب
+    const reqRes = await fetch(`requests.json?t=${Date.now()}`);
+    let requests = await reqRes.json();
+    requests[reqIndex].status = "تم الصرف";
+    await saveToGitHub('requests.json', requests);
 
-        if (await saveToGitHub(`${cat}.json`, data)) {
-            alert("✅ تمت الإضافة بنجاح!");
-            window.location.href = "dashboard.html";
-        }
-    } catch (e) {
-        alert("خطأ في حفظ الصنف الجديد");
-    }
+    alert("✅ تم الخصم من المخزون بنجاح!");
+    location.reload();
 }
 
-// --- 5. محرك الحفظ في GitHub API ---
+// عرض الأقسام في اللوحة
+async function showCategory(category) {
+    const res = await fetch(`${category}.json?t=${Date.now()}`);
+    const data = await res.json();
+    document.getElementById('searchResults').innerHTML = data.map(i => `
+        <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;">
+            <span>${i.name} (${i.quantity} ${i.unit})</span>
+            <button onclick="location.href='disbursement.html?item=${i.name}&stock=${i.quantity}&cat=${category}'">طلب صرف</button>
+        </div>
+    `).join('');
+}
+
 async function saveToGitHub(file, data) {
     const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${file}`;
-    try {
-        const getFile = await fetch(url, { headers: { "Authorization": `token ${GITHUB_TOKEN}` } });
-        const fileJson = await getFile.json();
-        const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
-        
-        const res = await fetch(url, {
-            method: "PUT",
-            headers: { 
-                "Authorization": `token ${GITHUB_TOKEN}`, 
-                "Content-Type": "application/json" 
-            },
-            body: JSON.stringify({ 
-                message: "update data", 
-                content, 
-                sha: fileJson.sha 
-            })
-        });
-        return res.ok;
-    } catch (e) {
-        console.error("GitHub Save Error:", e);
-        return false;
-    }
+    const getFile = await fetch(url, { headers: { "Authorization": `token ${GITHUB_TOKEN}` } });
+    const fileJson = await getFile.json();
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+    const res = await fetch(url, {
+        method: "PUT",
+        headers: { "Authorization": `token ${GITHUB_TOKEN}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ message: "update", content, sha: fileJson.sha })
+    });
+    return res.ok;
 }
