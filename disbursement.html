@@ -1,20 +1,65 @@
-<button onclick="sendRequest()">إرسال الطلب للمسؤول</button>
-
-<script src="script.js"></script>
-<script>
-    async function sendRequest() {
-        const itemName = new URLSearchParams(window.location.search).get('item');
-        const requester = document.getElementById('requesterName').value;
-        const qty = document.getElementById('requestQty').value;
-        if(!requester || !qty) { alert("أكمل البيانات"); return; }
-
-        const res = await fetch(`requests.json?t=${new Date().getTime()}`);
-        let requests = await res.json();
-        requests.push({ id: Date.now(), itemName, requester, quantity: qty, status: "pending", date: new Date().toLocaleString() });
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طلب صرف - مستودعي</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .info-box { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ddd; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>📋 نموذج طلب صرف صنف</h2>
         
-        if (await saveToGitHub('requests.json', requests)) {
-            alert("تم الإرسال ✅");
-            location.href = "index.html";
-        }
-    }
-</script>
+        <div class="info-box">
+            <p><strong>📦 الصنف المطلوب:</strong> <span id="targetItem">جاري التحميل...</span></p>
+            <p><strong>✅ المتوفر حالياً:</strong> <span id="availableStock">0</span></p>
+        </div>
+
+        <div class="input-group">
+            <label>👤 اسم الموظف/الطالب:</label>
+            <input type="text" id="requesterName" placeholder="أدخل اسمك الثلاثي">
+        </div>
+
+        <div class="input-group">
+            <label>🔢 الكمية المطلوبة:</label>
+            <input type="number" id="requestQty" placeholder="0" min="1">
+        </div>
+
+        <div class="input-group">
+            <label>🏫 رقم المعمل / القسم:</label>
+            <input type="text" id="labNumber" placeholder="مثال: معمل 5">
+        </div>
+
+        <div class="button-group" style="display: flex; gap: 10px; margin-top: 20px;">
+            <button id="submitBtn" onclick="sendRequest()" style="background-color: #3498db; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; flex: 1; font-weight: bold; font-size: 16px;">
+                📤 إرسال الطلب للمسؤول
+            </button>
+            
+            <button onclick="location.href='index.html'" style="background-color: #95a5a6; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer;">
+                إلغاء
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // دالة لجلب بيانات الصنف من الرابط (URL Parameters) وعرضها في الصفحة
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const itemName = urlParams.get('item');
+            const stock = urlParams.get('stock');
+            
+            if (itemName) {
+                document.getElementById('targetItem').innerText = decodeURIComponent(itemName);
+                document.getElementById('availableStock').innerText = stock;
+            }
+        };
+    </script>
+</body>
+</html>
