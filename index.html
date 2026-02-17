@@ -2,21 +2,48 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>دخول النظام</title>
-    <link rel="stylesheet" href="style.css">
+    <title>دخول النظام - المستودع</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 350px; text-align: center; }
+        input, select, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        button { background: #3498db; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background: #2980b9; }
+    </style>
 </head>
-<body class="login-page">
+<body>
     <div class="login-container">
         <h2>🔐 تسجيل الدخول</h2>
         <input type="text" id="username" placeholder="اسم المستخدم">
         <input type="password" id="password" placeholder="كلمة المرور">
         <select id="userRole">
-            <option value="user">موظف (صلاحيات محدودة)</option>
+            <option value="user">موظف (طلب صرف)</option>
             <option value="admin">أدمن (إدارة كاملة)</option>
         </select>
         <button onclick="login()">دخول للنظام</button>
-        <p id="errorMsg" style="color:red;"></p>
+        <p style="font-size: 12px; color: #7f8c8d;">نظام إدارة المستودع المختبري v1.0</p>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        function login() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const role = document.getElementById('userRole').value;
+
+            if (!user) { alert("يرجى إدخال اسم المستخدم"); return; }
+
+            if (role === "admin") {
+                if (pass === "12345") {
+                    localStorage.setItem('currentUser', user);
+                    localStorage.setItem('userRole', 'admin');
+                    window.location.href = "dashboard.html";
+                } else { alert("كلمة المرور 12345 غير صحيحة"); }
+            } else {
+                localStorage.setItem('currentUser', user);
+                localStorage.setItem('userRole', 'user');
+                window.location.href = "dashboard.html";
+            }
+        }
+    </script>
 </body>
 </html>
