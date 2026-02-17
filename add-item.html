@@ -1,41 +1,31 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إضافة صنف - مستودعي</title>
+    <title>إضافة صنف جديد</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body onload="loadUnits()">
     <div class="container">
-        <h2>إضافة صنف جديد</h2>
-        
-        <select id="category" onchange="updateUnits()">
-            <option value="">اختر القسم...</option>
-            <option value="chemicals">الكيمياويات</option>
-            <option value="consumables">المستهلكات</option>
-            <option value="devices">الأجهزة</option>
-        </select>
-
-        <input type="text" id="name" placeholder="اسم الصنف">
-        <input type="number" id="quantity" placeholder="الكمية" oninput="calculateTotal()">
-        
-        <select id="unit">
-            <option value="">اختر الوحدة...</option>
-        </select>
-        
-        <input type="number" id="price" placeholder="السعر للواحدة" oninput="calculateTotal()">
-        
-        <div id="total_display" style="color: green; font-weight: bold; margin: 10px 0;">الإجمالي: 0 ريال</div>
-        
-        <button onclick="addItem()" style="background: #27ae60;">💾 حفظ الصنف في المستودع</button>
-        <button onclick="location.href='dashboard.html'" style="background: #7f8c8d; margin-top: 10px;">إلغاء ورجوع</button>
+        <h2>➕ إضافة صنف جديد للمستودع</h2>
+        <div class="form-group">
+            <select id="category">
+                <option value="">...اختر القسم</option>
+                <option value="chemicals">الكيمياويات</option>
+                <option value="consumables">المستهلكات</option>
+                <option value="devices">الأجهزة</option>
+            </select>
+            
+            <input type="text" id="itemName" placeholder="اسم الصنف">
+            <input type="number" id="itemQty" placeholder="الكمية">
+            
+            <select id="unit">
+                </select>
+            
+            <button onclick="addItem()" class="save-btn">💾 حفظ الصنف في المخزن</button>
+            <button onclick="location.href='dashboard.html'" class="back-btn">🔙 إلغاء ورجوع</button>
+        </div>
     </div>
-
     <script src="script.js"></script>
-    <script>
-        // التأكد من تهيئة الوحدات عند فتح الصفحة
-        window.onload = checkAccess; 
-    </script>
 </body>
 </html>
