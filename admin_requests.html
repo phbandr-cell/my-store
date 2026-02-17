@@ -2,63 +2,66 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>طلبات الصرف المعلقة - الإدارة</title>
+    <title>إدارة الطلبات - مستودعي</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .request-card {
-            background: #fff;
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .status-pending { color: #f39c12; font-weight: bold; }
-        .action-btns { display: flex; gap: 10px; margin-top: 10px; }
-    </style>
 </head>
-<body>
+<body onload="checkAccess(); loadAdminRequests();">
     <div class="container">
-        <h2>📥 طلبات الصرف بانتظار الاعتماد</h2>
-        <div id="requestsList">
-            <p style="text-align:center;">جاري تحميل الطلبات...</p>
-        </div>
-        <button onclick="location.href='dashboard.html'" style="background: #7f8c8d;">رجوع للرئيسية</button>
+        <h2>📥 طلبات الصرف الواردة</h2>
+        <div id="adminRequestsList">جاري تحميل الطلبات...</div>
+        <button onclick="location.href='dashboard.html'" style="background:#7f8c8d; margin-top:20px;">رجوع للوحة التحكم</button>
     </div>
 
     <script src="script.js"></script>
     <script>
-        window.onload = function() {
-            checkAccess(); // التأكد أن المستخدم أدمن
-            loadPendingRequests();
-        };
+        async function loadAdminRequests() {
+            const listDiv = document.getElementById('adminRequestsList');
+            try {
+                const res = await fetch(`requests.json?t=${new Date().getTime()}`);
+                const requests = await res.json();
+                const pending = requests.filter(r => r.status === "pending");
 
-        // وظيفة محاكاة لعرض الطلبات
-        function loadPendingRequests() {
-            const list = document.getElementById('requestsList');
-            // حالياً سنضع طلب تجريبي لمحاكاة ما سيحدث
-            const mockRequest = {
-                id: 1,
-                item: "Ethanol",
-                qty: 5,
-                requester: "خالد محمد",
-                dept: "الأحياء",
-                date: "2026-02-17"
-            };
+                if (pending.length === 0) {
+                    listDiv.innerHTML = "<p>لا توجد طلبات معلقة.</p>";
+                    return;
+                }
 
-            list.innerHTML = `
-                <div class="request-card">
-                    <p><strong>الصنف:</strong> ${mockRequest.item}</p>
-                    <p><strong>الكمية المطلوبة:</strong> ${mockRequest.qty}</p>
-                    <p><strong>مقدم الطلب:</strong> ${mockRequest.requester} (${mockRequest.dept})</p>
-                    <p><strong>الحالة:</strong> <span class="status-pending">بانتظار الموافقة</span></p>
-                    <div class="action-btns">
-                        <button onclick="approveRequest(${mockRequest.id})" style="background: #27ae60;">✅ موافقة</button>
-                        <button onclick="rejectRequest(${mockRequest.id})" style="background: #c0392b;">❌ رفض</button>
-                    </div>
-                </div>
-            `;
+                listDiv.innerHTML = "";
+                pending.forEach(req => {
+                    listDiv.innerHTML += `
+                        <div class="req-card" style="background:#fff; padding:15px; border-radius:8px; margin-bottom:10px; border-right:5px solid #f39c12; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+                            <p><strong>الصنف:</strong> ${req.itemName}</p>
+                            <p><strong>الكمية:</strong> ${req.quantity}</p>
+                            <p><strong>الطالب:</strong> ${req.requester}</p>
+                            <button onclick="processAction(${req.id}, 'approve')" style="background:#27ae60; color:white; border:none; padding:8px; border-radius:4px; cursor:pointer;">موافقة وصرف</button>
+                            <button onclick="processAction(${req.id}, 'reject')" style="background:#c0392b; color:white; border:none; padding:8px; border-radius:4px; cursor:pointer;">رفض</button>
+                        </div>`;
+                });
+            } catch (e) { listDiv.innerHTML = "خطأ في تحميل البيانات."; }
+        }
+
+        async function processAction(requestId, action) {
+            const reqRes = await fetch(`requests.json?t=${new Date().getTime()}`);
+            let allRequests = await reqRes.json();
+            const targetReq = allRequests.find(r => r.id === requestId);
+
+            if (action === 'approve') {
+                const categories = ['chemicals.json', 'consumables.json', 'devices.json'];
+                for (const file of categories) {
+                    const fRes = await fetch(`${file}?t=${new Date().getTime()}`);
+                    let inventory = await fRes.json();
+                    const item = inventory.find(i => i.name === targetReq.itemName);
+                    if (item && item.quantity >= targetReq.quantity) {
+                        item.quantity -= parseInt(targetReq.quantity);
+                        await saveToGitHub(file, inventory); // خصم من المخزون الحقيقي
+                        break;
+                    }
+                }
+            }
+            targetReq.status = (action === 'approve') ? "approved" : "rejected";
+            await saveToGitHub('requests.json', allRequests);
+            alert("تم تنفيذ الإجراء بنجاح!");
+            location.reload();
         }
     </script>
 </body>
