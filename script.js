@@ -1,27 +1,39 @@
-// وظيفة لحساب السعر الإجمالي تلقائياً
-function calculateTotal() {
-    const price = document.getElementById('price').value;
-    const qty = document.getElementById('quantity').value;
-    const totalField = document.getElementById('total_display');
+// بيانات تجريبية للبحث (سيتم ربطها بملفات الـ JSON لاحقاً)
+const mockItems = [
+    { name: "Ethanol", dept: "كيمياويات" },
+    { name: "أنابيب اختبار", dept: "مستهلكات" },
+    { name: "Centrifuge", dept: "أجهزة" }
+];
 
-    if (price && qty) {
-        const total = price * qty;
-        totalField.innerText = "الإجمالي: " + total + " ريال";
+function quickSearch() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const resultsDiv = document.getElementById('searchResults');
+    resultsDiv.innerHTML = "";
+
+    if (query.length > 0) {
+        const filtered = mockItems.filter(item => item.name.toLowerCase().includes(query));
+        filtered.forEach(item => {
+            resultsDiv.innerHTML += `
+                <div class="item-card">
+                    <span>${item.name} (${item.dept})</span>
+                    <button onclick="location.href='disbursement.html'" style="width: auto; padding: 5px 10px;">طلب صرف</button>
+                </div>`;
+        });
     }
 }
 
-// وظيفة لتغيير الوحدات حسب القسم
-function updateUnits() {
-    const category = document.getElementById('category').value;
-    const unitSelect = document.getElementById('unit');
-    
-    let options = "";
-    if (category === "chemicals") {
-        options = '<option>جم</option><option>كجم</option><option>مل</option><option>ل</option>';
-    } else if (category === "consumables") {
-        options = '<option>حبة</option><option>كرتون</option><option>علبة</option><option>صندوق</option>';
-    } else if (category === "devices") {
-        options = '<option>جهاز</option>';
+function login() {
+    const user = document.getElementById('username').value;
+    const role = document.getElementById('userRole').value;
+
+    if (user) {
+        // تخزين بيانات المستخدم في المتصفح مؤقتاً
+        localStorage.setItem('currentUser', user);
+        localStorage.setItem('userRole', role);
+        
+        // الانتقال للصفحة الرئيسية
+        window.location.href = "dashboard.html";
+    } else {
+        alert("يرجى إدخال اسم المستخدم");
     }
-    unitSelect.innerHTML = options;
 }
