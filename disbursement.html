@@ -6,43 +6,41 @@
     <title>نموذج طلب صرف</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .request-form { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 20px; }
-        .item-info { background: #f0f7ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-right: 5px solid #3498db; }
-        label { display: block; margin: 10px 0 5px; font-weight: bold; }
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        h2 { color: #2c3e50; text-align: center; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .info-box { background: #e8f4fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #2980b9; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #34495e; }
+        input { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        .btn-send { background-color: #3498db; color: white; border: none; padding: 15px; border-radius: 6px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; transition: background 0.3s; }
+        .btn-send:hover { background-color: #2980b9; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>📝 طلب صرف صنف</h2>
+        <h2>📋 طلب صرف صنف</h2>
         
-        <div class="request-form">
-            <div class="item-info">
-                <p><strong>الصنف:</strong> <span id="targetItem">جاري التحميل...</span></p>
-                <p><strong>المتوفر:</strong> <span id="availableStock">0</span></p>
-            </div>
-
-            <label for="requesterName">👤 اسم الطالب/الموظف:</label>
-            <input type="text" id="requesterName" placeholder="أدخل الاسم الثلاثي">
-
-            <label for="requestQty">🔢 الكمية المطلوبة:</label>
-            <input type="number" id="requestQty" placeholder="0" min="1">
-
-            <div class="button-group" style="display: flex; gap: 10px; margin-top: 25px;">
-                <button id="submitBtn" onclick="sendRequest()" style="background-color: #3498db; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; flex: 2; font-weight: bold;">
-                    📤 إرسال الطلب للمسؤول
-                </button>
-                
-                <button onclick="location.href='index.html'" style="background-color: #95a5a6; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; flex: 1;">
-                    إلغاء
-                </button>
-            </div>
+        <div class="info-box">
+            <p><strong>📦 الصنف:</strong> <span id="targetItem">جاري التحميل...</span></p>
+            <p><strong>🔢 المتوفر:</strong> <span id="availableStock">0</span></p>
         </div>
+
+        <label for="requesterName">👤 اسم الطالب/الموظف:</label>
+        <input type="text" id="requesterName" placeholder="أدخل الاسم الثلاثي">
+
+        <label for="requestQty">🔢 الكمية المطلوبة:</label>
+        <input type="number" id="requestQty" placeholder="0" min="1">
+
+        <button class="btn-send" onclick="sendRequest()">
+            📤 إرسال الطلب للمسؤول
+        </button>
+        
+        <button onclick="location.href='index.html'" style="background:none; border:none; color:#7f8c8d; cursor:pointer; width:100%; margin-top:15px;">إلغاء والرجوع</button>
     </div>
 
     <script src="script.js"></script>
     <script>
-        // دالة لعرض اسم الصنف المختار في الصفحة فور فتحها
+        // دالة لجلب بيانات الصنف من الرابط عند فتح الصفحة
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
             const itemName = urlParams.get('item');
