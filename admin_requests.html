@@ -2,81 +2,66 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة طلبات الصرف</title>
+    <title>لوحة تحكم المسؤول - الطلبات</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .request-card { background: white; border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .status-pending { color: #e67e22; font-weight: bold; }
-        .btn-approve { background: #27ae60; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
-        .btn-reject { background: #c0392b; color: white; border: none; padding: 8px 15px; border-radius: 5px; margin-right: 10px; cursor: pointer; }
+        .request-item { background: #fff; border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .status-badge { padding: 5px 10px; border-radius: 4px; font-size: 0.9em; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .btn-approve { background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+        .btn-reject { background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
-<body onload="checkAccess(); loadRequests();">
+<body onload="checkAccess(); loadAdminRequests();">
     <div class="container">
-        <h2>📂 إدارة طلبات الصرف المعلقة</h2>
-        <div id="requestsList">جاري تحميل الطلبات...</div>
-        <button onclick="location.href='dashboard.html'" style="margin-top:20px;">العودة للرئيسية</button>
+        <h2>📂 إدارة طلبات الصرف</h2>
+        <div id="adminRequestsList">جاري تحميل الطلبات...</div>
+        <button onclick="location.href='dashboard.html'" style="margin-top:20px;">العودة للوحة التحكم</button>
     </div>
 
     <script src="script.js"></script>
     <script>
-        // دالة لجلب الطلبات من ملف requests.json
-        async function loadRequests() {
-            const listDiv = document.getElementById('requestsList');
+        async function loadAdminRequests() {
+            const listDiv = document.getElementById('adminRequestsList');
             try {
                 const res = await fetch(`requests.json?t=${new Date().getTime()}`);
-                const requests = await res.json();
-                
-                // تصفية الطلبات المعلقة فقط
-                const pendingRequests = requests.filter(r => r.status === 'pending');
+                const data = await res.json();
+                const pending = data.filter(r => r.status === 'pending');
 
-                if (pendingRequests.length === 0) {
+                if (pending.length === 0) {
                     listDiv.innerHTML = "<p>لا توجد طلبات معلقة حالياً.</p>";
                     return;
                 }
 
                 listDiv.innerHTML = "";
-                pendingRequests.forEach(req => {
+                pending.forEach(req => {
                     listDiv.innerHTML += `
-                        <div class="request-card">
-                            <p><strong>الصنف:</strong> ${req.itemName}</p>
-                            <p><strong>الطالب:</strong> ${req.requester}</p>
-                            <p><strong>الكمية:</strong> ${req.quantity}</p>
-                            <p><strong>التاريخ:</strong> ${req.date}</p>
-                            <div style="margin-top:10px;">
-                                <button class="btn-approve" onclick="processAction(${req.id}, 'approve')">✅ موافقة</button>
-                                <button class="btn-reject" onclick="processAction(${req.id}, 'reject')">❌ رفض</button>
+                        <div class="request-item">
+                            <div>
+                                <strong>${req.itemName}</strong><br>
+                                <small>الطالب: ${req.requester} | الكمية: ${req.quantity}</small><br>
+                                <small>التاريخ: ${req.date}</small>
                             </div>
-                        </div>
-                    `;
+                            <div>
+                                <button class="btn-approve" onclick="handleAction(${req.id}, 'approved')">موافقة</button>
+                                <button class="btn-reject" onclick="handleAction(${req.id}, 'rejected')">رفض</button>
+                            </div>
+                        </div>`;
                 });
-            } catch (e) {
-                listDiv.innerHTML = "خطأ في تحميل البيانات.";
-            }
+            } catch (e) { listDiv.innerHTML = "فشل في تحميل الطلبات."; }
         }
 
-        // دالة معالجة الطلب (موافقة أو رفض)
-        async function processAction(id, action) {
-            if(!confirm("هل أنت متأكد من هذا الإجراء؟")) return;
-            
-            try {
-                const res = await fetch(`requests.json?t=${new Date().getTime()}`);
-                let requests = await res.json();
-                const reqIndex = requests.findIndex(r => r.id === id);
-                
-                if (reqIndex !== -1) {
-                    requests[reqIndex].status = (action === 'approve') ? 'approved' : 'rejected';
-                    
-                    // إذا تمت الموافقة، يمكنك لاحقاً إضافة كود لخصم الكمية من ملفات المخزون
-                    const success = await saveToGitHub('requests.json', requests);
-                    if (success) {
-                        alert("تم تحديث حالة الطلب بنجاح!");
-                        location.reload();
-                    }
+        async function handleAction(id, newStatus) {
+            if(!confirm("تأكيد الإجراء؟")) return;
+            const res = await fetch(`requests.json?t=${new Date().getTime()}`);
+            let data = await res.json();
+            const idx = data.findIndex(r => r.id === id);
+            if (idx !== -1) {
+                data[idx].status = newStatus;
+                if (await saveToGitHub('requests.json', data)) {
+                    alert("تم تحديث حالة الطلب!");
+                    location.reload();
                 }
-            } catch (e) {
-                alert("حدث خطأ أثناء المعالجة.");
             }
         }
     </script>
