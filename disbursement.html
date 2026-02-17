@@ -1,47 +1,20 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تقديم طلب صرف - مستودعي</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
-        <h2>نموذج تقديم طلب صرف</h2>
+<button onclick="sendRequest()">إرسال الطلب للمسؤول</button>
+
+<script src="script.js"></script>
+<script>
+    async function sendRequest() {
+        const itemName = new URLSearchParams(window.location.search).get('item');
+        const requester = document.getElementById('requesterName').value;
+        const qty = document.getElementById('requestQty').value;
+        if(!requester || !qty) { alert("أكمل البيانات"); return; }
+
+        const res = await fetch(`requests.json?t=${new Date().getTime()}`);
+        let requests = await res.json();
+        requests.push({ id: Date.now(), itemName, requester, quantity: qty, status: "pending", date: new Date().toLocaleString() });
         
-        <div id="itemDetails" style="background: #ecf0f1; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-            <p><strong>الصنف المطلوب:</strong> <span id="targetItem">جاري التحميل...</span></p>
-            <p><strong>الرصيد المتوفر حالياً:</strong> <span id="availableQty">0</span></p>
-        </div>
-
-        <div class="form-group">
-            <label>اسم مقدم الطلب:</label>
-            <input type="text" id="requesterName" placeholder="الاسم الكامل">
-            
-            <label>القسم:</label>
-            <input type="text" id="requesterDept" placeholder="القسم العلمي/الإداري">
-            
-            <label>المعمل/المكان:</label>
-            <input type="text" id="labNumber" placeholder="رقم المعمل">
-            
-            <label>الكمية المطلوبة:</label>
-            <input type="number" id="requestQty" placeholder="أدخل الكمية المطلوبة">
-        </div>
-
-        <div style="margin-top: 20px;">
-            <button onclick="submitRequest()" style="background: #3498db;">📤 إرسال الطلب للمسؤول</button>
-            <button onclick="location.href='index.html'" style="background: #7f8c8d; margin-top: 10px;">إلغاء والرجوع للبحث</button>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-    <script>
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            document.getElementById('targetItem').innerText = urlParams.get('item') || "غير محدد";
-            document.getElementById('availableQty').innerText = urlParams.get('stock') || "0";
-        };
-    </script>
-</body>
-</html>
+        if (await saveToGitHub('requests.json', requests)) {
+            alert("تم الإرسال ✅");
+            location.href = "index.html";
+        }
+    }
+</script>
