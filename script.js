@@ -1,61 +1,64 @@
 // ==========================================
-// 1. الإعدادات والربط
+// 1. الإعدادات الأساسية
 // ==========================================
 const GITHUB_TOKEN = "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"; 
 const REPO_OWNER = "phbandr-cell"; 
 const REPO_NAME = "my-store";
 
 // ==========================================
-// 2. دالة الدخول (إصلاح مشكلة الزر)
+// 2. دالة الدخول (إصلاح شامل)
 // ==========================================
 function login() {
-    console.log("تم الضغط على زر الدخول"); // للتأكد من استجابة الزر في Console
+    // جلب العناصر من الصفحة بناءً على التصميم الجديد
+    const userField = document.getElementById('username');
+    const passField = document.getElementById('password');
+    const roleField = document.getElementById('userRole');
 
-    const userVal = document.getElementById('username').value;
-    const passVal = document.getElementById('password').value;
-    const roleVal = document.getElementById('userRole').value;
+    // التحقق من وجود الحقول لمنع توقف الكود
+    if (!userField || !passField || !roleField) {
+        console.error("خطأ: تعذر العثور على حقول الإدخال في الصفحة.");
+        return;
+    }
 
-    if (userVal.trim() === "") {
+    const username = userField.value.trim();
+    const password = passField.value;
+    const role = roleField.value;
+
+    // التأكد من إدخال اسم المستخدم
+    if (username === "") {
         alert("يرجى إدخال اسم المستخدم");
         return;
     }
 
-    // فحص الصلاحيات
-    if (roleVal === "admin") {
-        if (passVal === "12345") { 
-            localStorage.setItem('currentUser', userVal);
+    // منطق التحقق من كلمة المرور
+    if (role === "admin") {
+        if (password === "12345") {
+            localStorage.setItem('currentUser', username);
             localStorage.setItem('userRole', 'admin');
-            console.log("دخول ناجح كأدمن");
             window.location.href = "dashboard.html";
         } else {
             alert("كلمة المرور للمسؤول غير صحيحة!");
         }
     } else {
-        // دخول الموظف العادي
-        localStorage.setItem('currentUser', userVal);
+        // دخول الموظف العادي لا يتطلب كلمة مرور معقدة في هذا النموذج
+        localStorage.setItem('currentUser', username);
         localStorage.setItem('userRole', 'user');
-        console.log("دخول ناجح كموظف");
         window.location.href = "dashboard.html";
     }
 }
 
 // ==========================================
-// 3. حماية الصفحات (توضع في dashboard و admin_requests)
+// 3. نظام حماية الصفحات
 // ==========================================
 function checkAccess() {
     const user = localStorage.getItem('currentUser');
-    const role = localStorage.getItem('userRole');
     if (!user) {
         window.location.href = "index.html";
-        return;
-    }
-    if (document.getElementById('welcomeMsg')) {
-        document.getElementById('welcomeMsg').innerText = "أهلاً، " + user;
     }
 }
 
 // ==========================================
-// 4. دالة الحفظ في GitHub (API)
+// 4. دالة الحفظ العالمية (API)
 // ==========================================
 async function saveToGitHub(fileName, updatedData) {
     const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${fileName}`;
@@ -70,5 +73,8 @@ async function saveToGitHub(fileName, updatedData) {
             body: JSON.stringify({ message: "تحديث البيانات", content: content, sha: fileJson.sha })
         });
         return response.ok;
-    } catch (e) { return false; }
+    } catch (e) {
+        console.error("خطأ في الحفظ:", e);
+        return false;
+    }
 }
