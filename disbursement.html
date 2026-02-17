@@ -4,31 +4,29 @@
     <meta charset="UTF-8">
     <title>طلب صرف صنف</title>
     <style>
-        body { font-family: sans-serif; background: #f4f7f6; padding: 20px; direction: rtl; }
+        body { font-family: sans-serif; background: #f4f7f6; padding: 20px; }
         .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         input, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
         .send-btn { background: #2980b9; color: white; border: none; font-weight: bold; cursor: pointer; }
-        .back-btn { background: #95a5a6; color: white; border: none; cursor: pointer; }
     </style>
 </head>
-<body onload="setupPage()">
+<body onload="setup()">
     <div class="container">
         <h2>📋 طلب صرف صنف</h2>
-        <p>الصنف: <span id="itemNameDisplay" style="font-weight:bold;">جاري التحميل...</span></p>
-        <p>المخزون المتوفر: <span id="itemStockDisplay" style="color:red;">0</span></p>
+        <p>الصنف: <span id="itemNameDisp" style="font-weight:bold;"></span></p>
+        <p>المخزون المتوفر: <span id="itemStockDisp" style="color:red; font-weight:bold;"></span></p>
         <hr>
-        <input type="text" id="requesterName" placeholder="اسم المستلم">
-        <input type="number" id="requestQty" placeholder="الكمية المطلوبة">
+        <input type="text" id="requester" placeholder="اسم المستلم">
+        <input type="number" id="reqQty" placeholder="الكمية المطلوبة">
         <button onclick="sendRequest()" class="send-btn">📤 إرسال الطلب للمسؤول</button>
-        <button onclick="location.href='dashboard.html'" class="back-btn">رجوع</button>
+        <button onclick="location.href='dashboard.html'" style="background:#95a5a6; color:white; border:none; cursor:pointer;">رجوع</button>
     </div>
-
     <script src="script.js"></script>
     <script>
-        function setupPage() {
+        function setup() {
             const params = new URLSearchParams(window.location.search);
-            document.getElementById('itemNameDisplay').innerText = params.get('item') || "غير محدد";
-            document.getElementById('itemStockDisplay').innerText = params.get('stock') || "0";
+            document.getElementById('itemNameDisp').innerText = params.get('item') || "غير محدد";
+            document.getElementById('itemStockDisp').innerText = params.get('stock') || "0";
         }
     </script>
 </body>
