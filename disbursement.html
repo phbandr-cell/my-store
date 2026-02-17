@@ -1,55 +1,48 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>طلب صرف - مستودعي</title>
+    <title>نموذج طلب صرف</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .info-box { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ddd; }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        .request-form { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 20px; }
+        .item-info { background: #f0f7ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-right: 5px solid #3498db; }
+        label { display: block; margin: 10px 0 5px; font-weight: bold; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>📋 نموذج طلب صرف صنف</h2>
+        <h2>📝 طلب صرف صنف</h2>
         
-        <div class="info-box">
-            <p><strong>📦 الصنف المطلوب:</strong> <span id="targetItem">جاري التحميل...</span></p>
-            <p><strong>✅ المتوفر حالياً:</strong> <span id="availableStock">0</span></p>
-        </div>
+        <div class="request-form">
+            <div class="item-info">
+                <p><strong>الصنف:</strong> <span id="targetItem">جاري التحميل...</span></p>
+                <p><strong>المتوفر:</strong> <span id="availableStock">0</span></p>
+            </div>
 
-        <div class="input-group">
-            <label>👤 اسم الموظف/الطالب:</label>
-            <input type="text" id="requesterName" placeholder="أدخل اسمك الثلاثي">
-        </div>
+            <label for="requesterName">👤 اسم الطالب/الموظف:</label>
+            <input type="text" id="requesterName" placeholder="أدخل الاسم الثلاثي">
 
-        <div class="input-group">
-            <label>🔢 الكمية المطلوبة:</label>
+            <label for="requestQty">🔢 الكمية المطلوبة:</label>
             <input type="number" id="requestQty" placeholder="0" min="1">
-        </div>
 
-        <div class="input-group">
-            <label>🏫 رقم المعمل / القسم:</label>
-            <input type="text" id="labNumber" placeholder="مثال: معمل 5">
-        </div>
-
-        <div class="button-group" style="display: flex; gap: 10px; margin-top: 20px;">
-            <button id="submitBtn" onclick="sendRequest()" style="background-color: #3498db; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; flex: 1; font-weight: bold; font-size: 16px;">
-                📤 إرسال الطلب للمسؤول
-            </button>
-            
-            <button onclick="location.href='index.html'" style="background-color: #95a5a6; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer;">
-                إلغاء
-            </button>
+            <div class="button-group" style="display: flex; gap: 10px; margin-top: 25px;">
+                <button id="submitBtn" onclick="sendRequest()" style="background-color: #3498db; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; flex: 2; font-weight: bold;">
+                    📤 إرسال الطلب للمسؤول
+                </button>
+                
+                <button onclick="location.href='index.html'" style="background-color: #95a5a6; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; flex: 1;">
+                    إلغاء
+                </button>
+            </div>
         </div>
     </div>
 
     <script src="script.js"></script>
     <script>
-        // دالة لجلب بيانات الصنف من الرابط (URL Parameters) وعرضها في الصفحة
+        // دالة لعرض اسم الصنف المختار في الصفحة فور فتحها
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
             const itemName = urlParams.get('item');
