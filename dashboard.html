@@ -5,43 +5,116 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الرئيسية - مستودعي</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* تنسيقات إضافية خاصة بالصفحة الرئيسية والقائمة المنسدلة */
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #3498db;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 5px;
+            right: 0; /* لتبدأ القائمة من اليمين في الواجهة العربية */
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .dropdown-content a:hover {background-color: #f1f1f1}
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .sections-grid button {
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: bold;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .sections-grid button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+    </style>
 </head>
 <body>
-    <div class="header" style="background: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+
+    <div class="header">
         <div class="dropdown">
-            <button class="dropbtn" style="background: #34495e; padding: 8px 15px;">📊 التقارير ▼</button>
+            <button class="dropbtn">📊 التقارير ▼</button>
             <div class="dropdown-content">
-                <a href="#" onclick="alert('جاري تجهيز تقرير Excel')">تقرير Excel</a>
-                <a href="#" onclick="alert('جاري تجهيز تقرير PDF')">تقرير PDF</a>
+                <a href="#" onclick="exportExcel()">تقرير Excel</a>
+                <a href="#" onclick="exportPDF()">تقرير PDF</a>
             </div>
         </div>
 
         <div id="adminLink" style="display:none;">
-            <button onclick="location.href='admin.html'" style="background: #e67e22;">⚙️ الإدارة</button>
+            <button onclick="location.href='admin.html'" style="background: #e67e22; width: auto; padding: 8px 15px;">⚙️ الإدارة</button>
         </div>
         
-        <div>
-            <span id="welcomeMsg"></span>
-            <button onclick="logout()" style="background: #c0392b; width: auto; padding: 5px 10px; margin-right: 10px;">خروج</button>
+        <div style="display: flex; align-items: center;">
+            <span id="welcomeMsg" style="margin-left: 10px; font-size: 14px;"></span>
+            <button onclick="logout()" style="background: #c0392b; width: auto; padding: 5px 10px;">خروج</button>
         </div>
     </div>
 
-    <div class="container" style="margin-top: 20px;">
-        <h2 style="text-align: center;">الأقسام الرئيسية</h2>
+    <div class="container" style="margin-top: 30px;">
+        <h2 style="text-align: center; color: #2c3e50;">أقسام المستودع</h2>
+        <p style="text-align: center; color: #7f8c8d; margin-bottom: 30px;">اختر القسم لإضافة أصناف أو مراجعة الاستلام</p>
         
-        <div class="sections-grid" style="display: grid; grid-template-columns: 1fr; gap: 15px;">
-            <button onclick="location.href='add-item.html?dept=chemicals'" style="background: #27ae60; height: 100px; font-size: 20px;">🧪 الكيمياويات</button>
-            <button onclick="location.href='add-item.html?dept=consumables'" style="background: #2980b9; height: 100px; font-size: 20px;">📦 المستهلكات</button>
-            <button onclick="location.href='add-item.html?dept=devices'" style="background: #8e44ad; height: 100px; font-size: 20px;">💻 الأجهزة</button>
+        <div class="sections-grid" style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+            <button onclick="location.href='add-item.html?dept=chemicals'" style="background: #27ae60; height: 120px; font-size: 22px;">
+                🧪 قسم الكيمياويات
+            </button>
+            
+            <button onclick="location.href='add-item.html?dept=consumables'" style="background: #2980b9; height: 120px; font-size: 22px;">
+                📦 قسم المستهلكات
+            </button>
+            
+            <button onclick="location.href='add-item.html?dept=devices'" style="background: #8e44ad; height: 120px; font-size: 22px;">
+                💻 قسم الأجهزة
+            </button>
         </div>
     </div>
 
     <script src="script.js"></script>
     <script>
-        // كود تشغيل الصفحة فور تحميلها
+        // تشغيل وظيفة فحص الصلاحيات فور تحميل الصفحة
         window.onload = function() {
-            checkAccess();
+            if (typeof checkAccess === "function") {
+                checkAccess();
+            } else {
+                console.error("وظيفة checkAccess غير معرفة في script.js");
+            }
         };
+
+        // وظائف مؤقتة للتقارير
+        function exportExcel() { alert("جاري استخراج بيانات الأقسام إلى ملف Excel..."); }
+        function exportPDF() { alert("جاري تحويل التقارير إلى صيغة PDF..."); }
     </script>
 </body>
 </html>
