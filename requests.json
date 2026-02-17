@@ -15,5 +15,12 @@
     "quantity": "6",
     "status": "pending",
     "date": "١٧‏/٢‏/٢٠٢٦ ١١:٥٩:٤٤ م"
+  },
+  {
+    "item": "Ethanol",
+    "requester": "33",
+    "qty": 2,
+    "status": "قيد الانتظار",
+    "date": "١٨‏/٢‏/٢٠٢٦ ١٢:٣٦:٥٨ ص"
   }
 ]
