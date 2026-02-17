@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الرئيسية - مستودعي</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header" style="background: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+        <div class="dropdown">
+            <button class="dropbtn" style="background: #34495e; padding: 8px 15px;">📊 التقارير ▼</button>
+            <div class="dropdown-content">
+                <a href="#" onclick="alert('جاري تجهيز تقرير Excel')">تقرير Excel</a>
+                <a href="#" onclick="alert('جاري تجهيز تقرير PDF')">تقرير PDF</a>
+            </div>
+        </div>
+
+        <div id="adminLink" style="display:none;">
+            <button onclick="location.href='admin.html'" style="background: #e67e22;">⚙️ الإدارة</button>
+        </div>
+        
+        <div>
+            <span id="welcomeMsg"></span>
+            <button onclick="logout()" style="background: #c0392b; width: auto; padding: 5px 10px; margin-right: 10px;">خروج</button>
+        </div>
+    </div>
+
+    <div class="container" style="margin-top: 20px;">
+        <h2 style="text-align: center;">الأقسام الرئيسية</h2>
+        
+        <div class="sections-grid" style="display: grid; grid-template-columns: 1fr; gap: 15px;">
+            <button onclick="location.href='add-item.html?dept=chemicals'" style="background: #27ae60; height: 100px; font-size: 20px;">🧪 الكيمياويات</button>
+            <button onclick="location.href='add-item.html?dept=consumables'" style="background: #2980b9; height: 100px; font-size: 20px;">📦 المستهلكات</button>
+            <button onclick="location.href='add-item.html?dept=devices'" style="background: #8e44ad; height: 100px; font-size: 20px;">💻 الأجهزة</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // كود تشغيل الصفحة فور تحميلها
+        window.onload = function() {
+            checkAccess();
+        };
+    </script>
+</body>
+</html>
